@@ -1,0 +1,69 @@
+version: '3.7'
+services:
+  trino-coordinator:
+    image: 'trinodb/trino:latest'
+    depends_on: 
+      - mysqldb
+      - mongodb
+    container_name: trino-coordinator
+    hostname: trino-coordinator
+    ports:
+      - '8080:8080'
+    volumes:
+      - ./trino:/etc/trino
+    networks:
+      - trino-network
+
+  mongodb:
+    image: 'mongo:4.4.13-focal'
+    container_name: mongo
+    hostname: mongo
+    ports:
+      - '27017:27017'
+    volumes:
+      - ./mongodb/database:/data/db
+    networks:
+      - trino-network
+
+  mysqldb:
+    image: mysql:5.7.32
+    container_name: mysql
+    hostname: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: admin
+      MYSQL_DATABASE: trino
+    ports:
+      - '3306:3306'
+    volumes:
+      - './mysql:/etc/mysql/conf.d'
+    networks:
+      - trino-network
+
+  portainerbd2:
+    image: portainer/portainer
+    container_name: portainer_bd2
+    ports:
+       - '9000:9000'
+    expose:
+       - '9000'
+    environment:
+      - VIRTUAL_HOST=dev.portainer
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - trino-network
+
+  adminerbd2:
+    image: adminer
+    container_name: adminer_bd2
+    restart: always
+    ports:
+      - 8888:8080
+    networks:
+      - trino-network
+
+networks:
+  trino-network:
+    driver: bridge
