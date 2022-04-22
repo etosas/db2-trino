@@ -1,0 +1,43 @@
+version: '3.7'
+services:
+  pentahobd2:
+    image: magm3333/pentahoserver:9.1ce
+    depends_on: 
+      - mysqlbd2
+    container_name: pentaho_bd2
+    ports:
+      - '80:8080'
+  mysqlbd2:
+    image: mysql:5.7.32
+    container_name: mysql_bd2
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_USER=root
+    expose:
+      - '3306'
+    volumes:
+      - ./mysql57:/etc/mysql/conf.d
+      #- ./mysql57/data:/var/lib/mysql
+  adminerbd2:
+    image: adminer
+    container_name: adminer_bd2
+    restart: always
+    ports:
+      - 8888:8080
+  hopbd2:
+    image: apache/hop-web
+    container_name: hop_bd2
+    ports:
+      - 8080:8080
+
+  portainerbd2:
+    image: portainer/portainer
+    container_name: portainer_bd2
+    ports:
+       - '9000:9000'
+    expose:
+       - '9000'
+    environment:
+      - VIRTUAL_HOST=dev.portainer
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
